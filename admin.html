@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - አሰፋ ዲጂታል ቢንጎ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Ethiopic', sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #0d47a1;
+            border-radius: 10px;
+            border: 3px solid #ffd700;
+        }
+
+        .header h1 {
+            color: #ffd700;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #162447;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+        }
+
+        .stat-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .control-panel {
+            background: #1f4068;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #ffd700;
+        }
+
+        .control-panel h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-width: 150px;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-start {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-call {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-reset {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-broadcast {
+            background: #6610f2;
+            color: white;
+        }
+
+        .called-numbers {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        .called-numbers h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .numbers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .called-number {
+            background: #ffd700;
+            color: #0d47a1;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .called-number:first-child {
+            background: #28a745;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .players-section {
+            margin-top: 30px;
+        }
+
+        .players-section h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .players-table-container {
+            overflow-x: auto;
+            background: #1f4068;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #28a745;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        tr:hover {
+            background: rgba(255,215,0,0.1);
+        }
+
+        .player-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-inactive {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-winner {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .admin-message {
+            background: #343a40;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #17a2b8;
+        }
+
+        .admin-message h3 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: white;
+            font-size: 16px;
+        }
+
+        .message-input button {
+            padding: 12px 24px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .winner-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            border: 5px solid #ffd700;
+            z-index: 1001;
+            text-align: center;
+            display: none;
+            min-width: 300px;
+        }
+
+        .winner-alert h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .winner-info {
+            font-size: 20px;
+            margin: 15px 0;
+            color: #28a745;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .admin-login {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1f4068;
+            padding: 30px;
+            border-radius: 10px;
+            border: 3px solid #ffd700;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .admin-login h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .admin-login input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: white;
+            font-size: 16px;
+        }
+
+        .admin-login button {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .control-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div id="adminLogin" class="admin-login">
+        <h2 class="amharic-text">አስተዳዳሪ መግቢያ</h2>
+        <input type="password" id="adminPassword" placeholder="የይለፍ ቃል" class="amharic-text">
+        <button onclick="loginAdmin()" class="amharic-text">ግባ</button>
+        <div id="loginError" style="color: #dc3545; margin-top: 10px; display: none;" class="amharic-text">የተሳሳተ ይለፍ ቃል</div>
+    </div>
+
+    <!-- Main Admin Panel (hidden by default) -->
+    <div id="adminPanel" style="display: none;">
+        <button class="logout-btn" onclick="logout()">ውጣ</button>
+        
+        <div class="admin-container">
+            <div class="header">
+                <h1 class="amharic-text">አሰፋ ዲጂታል ቢንጎ - አስተዳደር ፓነል</h1>
+                <p>Real-time Game Administration</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 class="amharic-text">አጠቃላይ ተጫዋቾች</h3>
+                    <div class="stat-value" id="totalPlayers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="amharic-text">አሁን ያሉ ተጫዋቾች</h3>
+                    <div class="stat-value" id="activePlayers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="amharic-text">ተጠርተው ያሉ ቁጥሮች</h3>
+                    <div class="stat-value" id="calledNumbers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="amharic-text">ጠቅላላ ሽልማት</h3>
+                    <div class="stat-value" id="totalPrizes">0 ብር</div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h2 class="amharic-text">የጨዋታ መቆጣጠሪያ</h2>
+                
+                <div class="control-buttons">
+                    <button class="control-btn btn-start" onclick="startGame()">ጨዋታ ጀምር</button>
+                    <button class="control-btn btn-stop" onclick="stopGame()">ጨዋታ አቁም</button>
+                    <button class="control-btn btn-call" onclick="callNumber()">ቁጥር ጥራ</button>
+                    <button class="control-btn btn-reset" onclick="resetGame()">ጨዋታ አዲስ አድርግ</button>
+                    <button class="control-btn btn-broadcast" onclick="showBroadcastModal()">መልእክት ላክ</button>
+                </div>
+
+                <div class="called-numbers">
+                    <h3 class="amharic-text">የተጠሩ ቁጥሮች</h3>
+                    <div class="numbers-container" id="adminCalledNumbers">
+                        <!-- Called numbers will appear here -->
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong class="amharic-text">የአሁኑ ቁጥር:</strong> 
+                        <span id="currentNumberDisplay" style="font-size: 24px; color: #ffd700; margin-left: 10px;">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="players-section">
+                <h2 class="amharic-text">ተጫዋቾች ዝርዝር</h2>
+                <div class="players-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="amharic-text">ተ.ቁ.</th>
+                                <th class="amharic-text">ስም</th>
+                                <th class="amharic-text">ስልክ</th>
+                                <th class="amharic-text">ውርርድ</th>
+                                <th class="amharic-text">የቦርድ አይነት</th>
+                                <th class="amharic-text">ሽልማት</th>
+                                <th class="amharic-text">ሁኔታ</th>
+                                <th class="amharic-text">ድርጊቶች</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Players will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-message">
+                <h3 class="amharic-text">መልእክት ለሁሉም ተጫዋቾች</h3>
+                <div class="message-input">
+                    <input type="text" id="broadcastMessage" placeholder="መልእክት ያስገቡ..." class="amharic-text">
+                    <button onclick="sendBroadcast()" class="amharic-text">ላክ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Broadcast Modal -->
+        <div id="broadcastModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1002;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1f4068; padding: 30px; border-radius: 10px; border: 3px solid #ffd700; min-width: 300px;">
+                <h3 style="color: #ffd700; margin-bottom: 20px;" class="amharic-text">መልእክት ላክ</h3>
+                <textarea id="modalBroadcastMessage" rows="4" style="width: 100%; padding: 10px; border: 2px solid #28a745; border-radius: 5px; background: #1a1a2e; color: white;" class="amharic-text" placeholder="መልእክት..."></textarea>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="sendBroadcastFromModal()" style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px;" class="amharic-text">ላክ</button>
+                    <button onclick="closeBroadcastModal()" style="flex: 1; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px;" class="amharic-text">ዝጋ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="adminNotification"></div>
+
+        <!-- Winner Alert -->
+        <div class="winner-alert" id="winnerAlert">
+            <h2 class="amharic-text">🎉 አሸናፊ! 🎉</h2>
+            <div class="winner-info" id="winnerInfo"></div>
+            <div style="margin: 20px 0; color: #ffd700;" class="amharic-text" id="winPatternInfo"></div>
+            <button onclick="closeWinnerAlert()" style="padding: 10px 30px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold;" class="amharic-text">እሺ</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Admin State
+        const adminState = {
+            isAuthenticated: false,
+            players: [],
+            gameActive: false,
+            calledNumbers: [],
+            currentNumber: null,
+            totalPrizes: 0,
+            autoCallInterval: null
+        };
+
+        // Admin password
+        const ADMIN_PASSWORD = "asse2123";
+
+        // Login function
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (password === ADMIN_PASSWORD) {
+                adminState.isAuthenticated = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                showNotification('በተሳካ ሁኔታ ተገብተዋል', 'success');
+                loadSampleData();
+            } else {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'የተሳሳተ ይለፍ ቃል';
+            }
+        }
+
+        // Load sample data for demo
+        function loadSampleData() {
+            // Generate sample players
+            const samplePlayers = [];
+            const names = ['አሰፋ ጋሻዬ', 'ብርሃን ነጋ', 'መለስ ዜናዊ', 'አብይ አህመድ', 'ሳህለ ወልደማርያም'];
+            
+            for (let i = 1; i <= 20; i++) {
+                const name = names[Math.floor(Math.random() * names.length)];
+                const gameTypes = ['75-ቢንጎ', '90-ቢንጎ', '30-ቢንጎ', 'ንድፍ ቢንጎ'];
+                const gameType = gameTypes[Math.floor(Math.random() * gameTypes.length)];
+                const stake = [25, 50, 100, 200, 500][Math.floor(Math.random() * 5)];
+                const active = Math.random() > 0.3;
+                const won = Math.random() > 0.8;
+                const prize = won ? calculatePotentialWin(stake) * Math.random() : 0;
+                
+                samplePlayers.push({
+                    id: i,
+                    name: `${name} ${i}`,
+                    phone: `09${Math.floor(Math.random() * 100000000)}`,
+                    stake: stake,
+                    gameType: gameType,
+                    active: active,
+                    won: won,
+                    prize: Math.floor(prize)
+                });
+            }
+            
+            adminState.players = samplePlayers;
+            updatePlayersTable();
+            updateAdminDisplay();
+            
+            // Start auto-call simulation
+            startAutoCallSimulation();
+        }
+
+        // Update admin display
+        function updateAdminDisplay() {
+            document.getElementById('totalPlayers').textContent = adminState.players.length;
+            document.getElementById('activePlayers').textContent = 
+                adminState.players.filter(p => p.active).length;
+            document.getElementById('calledNumbers').textContent = adminState.calledNumbers.length;
+            document.getElementById('totalPrizes').textContent = 
+                adminState.players.reduce((sum, p) => sum + p.prize, 0).toLocaleString() + ' ብር';
+            
+            // Update current number
+            document.getElementById('currentNumberDisplay').textContent = 
+                adminState.currentNumber || '-';
+            
+            // Update called numbers display
+            updateCalledNumbersDisplay();
+        }
+
+        // Update called numbers display
+        function updateCalledNumbersDisplay() {
+            const container = document.getElementById('adminCalledNumbers');
+            container.innerHTML = '';
+            
+            adminState.calledNumbers.slice(0, 15).forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'called-number amharic-text';
+                div.textContent = num;
+                container.appendChild(div);
+            });
+        }
+
+        // Update players table
+        function updatePlayersTable() {
+            const tbody = document.getElementById('playersTableBody');
+            tbody.innerHTML = '';
+            
+            adminState.players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="amharic-text">${player.name}</td>
+                    <td>${player.phone}</td>
+                    <td>${player.stake} ብር</td>
+                    <td class="amharic-text">${player.gameType}</td>
+                    <td>${player.won ? player.prize.toLocaleString() + ' ብር' : '-'}</td>
+                    <td>
+                        <span class="player-status ${player.active ? 'status-active' : 'status-inactive'} ${player.won ? 'status-winner' : ''}">
+                            ${player.active ? 'ንቁ' : 'ንቁ አይደለም'} ${player.won ? '🏆' : ''}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="sendMessageToPlayer(${player.id})" style="padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 3px; font-size: 12px;" class="amharic-text">መልእክት</button>
+                        ${!player.active ? `<button onclick="removePlayer(${player.id})" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; font-size: 12px; margin-left: 5px;" class="amharic-text">አስወጣ</button>` : ''}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Start auto-call simulation
+        function startAutoCallSimulation() {
+            if (adminState.autoCallInterval) {
+                clearInterval(adminState.autoCallInterval);
+            }
+            
+            adminState.autoCallInterval = setInterval(() => {
+                if (adminState.gameActive) {
+                    callNumber();
+                }
+            }, 7000);
+        }
+
+        // Admin controls
+        function startGame() {
+            adminState.gameActive = true;
+            adminState.calledNumbers = [];
+            showNotification('ጨዋታ ተጀምሯል', 'success');
+        }
+
+        function stopGame() {
+            adminState.gameActive = false;
+            showNotification('ጨዋታ ተቆምቷል', 'success');
+        }
+
+        function callNumber() {
+            if (!adminState.gameActive) {
+                showNotification('ጨዋታ አልተጀመረም', 'error');
+                return;
+            }
+            
+            // Generate random number 1-75
+            let number;
+            do {
+                number = Math.floor(Math.random() * 75) + 1;
+            } while (adminState.calledNumbers.includes(number) && adminState.calledNumbers.length < 75);
+            
+            const letters = 'BINGO';
+            const columnIndex = Math.floor((number - 1) / 15);
+            const letter = letters[Math.min(columnIndex, 4)];
+            const display = `${letter}-${number}`;
+            
+            adminState.calledNumbers.unshift(display);
+            adminState.currentNumber = display;
+            
+            // Check for winners
+            checkForWinners(number);
+            
+            updateAdminDisplay();
+            showNotification(`ቁጥር ተጠርቷል: ${display}`, 'info');
+        }
+
+        function resetGame() {
+            if (confirm('እርግጠኛ ነዎት? ይህ ሁሉንም የጨዋታ መረጃዎችን ያጠፋል።')) {
+                adminState.gameActive = false;
+                adminState.calledNumbers = [];
+                adminState.currentNumber = null;
+                adminState.players.forEach(p => {
+                    p.active = false;
+                    p.won = false;
+                    p.prize = 0;
+                });
+                
+                updateAdminDisplay();
+                updatePlayersTable();
+                showNotification('ጨዋታ እንደገና ተጀምሯል', 'success');
+            }
+        }
+
+        function checkForWinners(number) {
+            // Simulate random winner
+            if (Math.random() > 0.9 && adminState.players.length > 0) {
+                const activePlayers = adminState.players.filter(p => p.active && !p.won);
+                if (activePlayers.length > 0) {
+                    const winner = activePlayers[Math.floor(Math.random() * activePlayers.length)];
+                    const patterns = ['row', 'column', 'diagonal', 'four-corners', 'full-house'];
+                    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+                    const prize = calculatePotentialWin(winner.stake);
+                    
+                    // Update winner
+                    winner.won = true;
+                    winner.prize = prize;
+                    
+                    // Show winner alert
+                    document.getElementById('winnerInfo').textContent = 
+                        `${winner.name} - ${prize.toLocaleString()} ብር`;
+                    document.getElementById('winPatternInfo').textContent = 
+                        `የማሸነፍ ንድፍ: ${getPatternName(pattern)}`;
+                    document.getElementById('winnerAlert').style.display = 'block';
+                    
+                    // Play win sound
+                    const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
+                    audio.play().catch(() => {});
+                    
+                    updatePlayersTable();
+                    updateAdminDisplay();
+                }
+            }
+        }
+
+        function showBroadcastModal() {
+            document.getElementById('broadcastModal').style.display = 'block';
+            document.getElementById('modalBroadcastMessage').value = '';
+            document.getElementById('modalBroadcastMessage').focus();
+        }
+
+        function closeBroadcastModal() {
+            document.getElementById('broadcastModal').style.display = 'none';
+        }
+
+        function sendBroadcast() {
+            const message = document.getElementById('broadcastMessage').value;
+            if (!message.trim()) {
+                showNotification('መልእክት ያስገቡ', 'error');
+                return;
+            }
+            
+            showNotification(`መልእክት ተልኳል: ${message}`, 'success');
+            document.getElementById('broadcastMessage').value = '';
+        }
+
+        function sendBroadcastFromModal() {
+            const message = document.getElementById('modalBroadcastMessage').value;
+            if (!message.trim()) {
+                showNotification('መልእክት ያስገቡ', 'error');
+                return;
+            }
+            
+            closeBroadcastModal();
+            showNotification(`መልእክት ተልኳል: ${message}`, 'success');
+        }
+
+        function sendMessageToPlayer(playerId) {
+            const player = adminState.players.find(p => p.id === playerId);
+            if (player) {
+                const message = prompt(`ለ${player.name} መልእክት ያስገቡ:`);
+                if (message) {
+                    showNotification(`መልእክት ለ${player.name} ተልኳል: ${message}`, 'success');
+                }
+            }
+        }
+
+        function removePlayer(playerId) {
+            const player = adminState.players.find(p => p.id === playerId);
+            if (player && confirm(`እርግጠኛ ነዎት? ${player.name} ይሰረዛል።`)) {
+                player.active = false;
+                updatePlayersTable();
+                updateAdminDisplay();
+                showNotification(`${player.name} ተሰርዟል`, 'success');
+            }
+        }
+
+        function closeWinnerAlert() {
+            document.getElementById('winnerAlert').style.display = 'none';
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('adminNotification');
+            notification.textContent = message;
+            notification.style.backgroundColor = type === 'error' ? '#dc3545' : 
+                                              type === 'info' ? '#17a2b8' : '#28a745';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function logout() {
+            if (confirm('ከአስተዳዳሪ ፓነል ይውጣ?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Make functions available globally
+        window.loginAdmin = loginAdmin;
+        window.startGame = startGame;
+        window.stopGame = stopGame;
+        window.callNumber = callNumber;
+        window.resetGame = resetGame;
+        window.showBroadcastModal = showBroadcastModal;
+        window.closeBroadcastModal = closeBroadcastModal;
+        window.sendBroadcast = sendBroadcast;
+        window.sendBroadcastFromModal = sendBroadcastFromModal;
+        window.sendMessageToPlayer = sendMessageToPlayer;
+        window.removePlayer = removePlayer;
+        window.closeWinnerAlert = closeWinnerAlert;
+        window.logout = logout;
+
+        // Handle Enter key in password field
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loginAdmin();
+            }
+        });
+    </script>
+</body>
+</html>
