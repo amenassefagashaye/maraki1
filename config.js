@@ -1,5 +1,9 @@
 // Configuration for the Bingo Game
 const CONFIG = {
+    // Server settings
+    SERVER_URL: "wss://ameng-gogs-maraki2-57.deno.dev/ws",
+    RECONNECT_DELAY: 3000,
+    
     // Game settings
     MAX_PLAYERS: 90,
     AUTO_CALL_INTERVAL: 7000, // 7 seconds
@@ -33,23 +37,25 @@ const CONFIG = {
             range: 90, 
             columns: 9,
             rows: 3,
-            labels: ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90']
+            labels: ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90'],
+            columnRanges: [[1,9], [10,19], [20,29], [30,39], [40,49], [50,59], [60,69], [70,79], [80,90]]
         },
         { 
             id: '30ball', 
             name: '30-ቢንጎ', 
             icon: '⚡', 
-            desc: '3×3 ፍጥነት', 
+            desc: '3×3 ፈጣን', 
             range: 30, 
             columns: 3,
             rows: 3,
-            labels: ['1-10','11-20','21-30']
+            labels: ['1-10','11-20','21-30'],
+            columnRanges: [[1,10], [11,20], [21,30]]
         },
         { 
             id: '50ball', 
             name: '50-ቢንጎ', 
             icon: '🎲', 
-            desc: '5×5 ከBINGO', 
+            desc: '5×5 ፈጣን', 
             range: 50, 
             columns: 5,
             rows: 5,
@@ -58,157 +64,121 @@ const CONFIG = {
         },
         { 
             id: 'pattern', 
-            name: 'ንድፍ ቢንጎ', 
+            name: 'የተለየ ቅርፅ', 
             icon: '✨', 
-            desc: 'ተጠቀም ንድፍ', 
+            desc: '5×5 ልዩ ቅርፅ', 
             range: 75, 
             columns: 5,
             rows: 5,
             labels: 'BINGO'.split(''),
-            columnRanges: [[1,15], [16,30], [31,45], [46,60], [61,75]]
+            columnRanges: [[1,15], [16,30], [31,45], [46,60], [61,75]],
+            patterns: [
+                { name: 'X-ቅርፅ', pattern: [0,4,6,8,12,16,18,20,24] },
+                { name: 'ፍሬም', pattern: [0,1,2,3,4,5,9,10,14,15,19,20,21,22,23,24] },
+                { name: 'ማህተም', pattern: [0,1,5,6,18,19,23,24] }
+            ]
         },
         { 
             id: 'coverall', 
-            name: 'ሙሉ ቤት', 
+            name: 'ሙሉ ቦርድ', 
             icon: '🏆', 
-            desc: 'ሁሉንም ምልክት ያድርጉ', 
+            desc: '9×5 ሙሉ ቦርድ', 
             range: 90, 
             columns: 9,
             rows: 5,
-            labels: ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90']
+            labels: ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90'],
+            columnRanges: [[1,10], [11,20], [21,30], [31,40], [41,50], [51,60], [61,70], [71,80], [81,90]]
         }
     ],
     
-    // Winning patterns
+    // Admin settings
+    ADMIN_PASSWORD: "asse2123",
+    
+    // Game rules
     WINNING_PATTERNS: {
-        '75ball': ['row', 'column', 'diagonal', 'four-corners', 'full-house'],
-        '90ball': ['one-line', 'two-lines', 'full-house'],
-        '30ball': ['full-house'],
-        '50ball': ['row', 'column', 'diagonal', 'four-corners', 'full-house'],
-        'pattern': ['x-pattern', 'frame', 'postage-stamp', 'small-diamond'],
-        'coverall': ['full-board']
+        '75ball': ['ረድፍ', 'አምድ', 'ዲያግናል', 'አራት ማዕዘን', 'ሙሉ ቤት'],
+        '90ball': ['አንድ መስመር', 'ሁለት መስመሮች', 'ሙሉ ቤት'],
+        '30ball': ['ሙሉ ቤት'],
+        '50ball': ['ረድፍ', 'አምድ', 'ዲያግናል', 'አራት ማዕዘን', 'ሙሉ ቤት'],
+        'pattern': ['X-ቅርፅ', 'ፍሬም', 'ማህተም', 'ሙሉ ቤት'],
+        'coverall': ['ሙሉ ቦርድ']
     },
     
-    // Pattern names in Amharic
-    PATTERN_NAMES: {
-        'row': 'ረድፍ',
-        'column': 'አምድ',
-        'diagonal': 'ዲያግናል',
-        'four-corners': 'አራት ማእዘኖች',
-        'full-house': 'ሙሉ ቤት',
-        'one-line': 'አንድ ረድፍ',
-        'two-lines': 'ሁለት ረድጎች',
-        'x-pattern': 'X ንድፍ',
-        'frame': 'አውራ ቀለበት',
-        'postage-stamp': 'ማህተም',
-        'small-diamond': 'ዲያምንድ',
-        'full-board': 'ሙሉ ቦርድ'
-    }
-};
-
-// WebSocket configuration
-const WS_CONFIG = {
-    wsPath: '/ws',
-    reconnectDelay: 3000,
-    maxReconnectAttempts: 5
-};
-
-// Export configurations
-window.CONFIG = CONFIG;
-window.WS_CONFIG = WS_CONFIG;
-
-// Helper functions
-window.calculatePotentialWin = function(stake, playerCount = 90) {
-    const pool = stake * playerCount * (CONFIG.PRIZE_POOL_PERCENT / 100);
-    const afterService = pool * (1 - CONFIG.SERVICE_CHARGE_PERCENT / 100);
-    return Math.floor(afterService);
-};
-
-window.getPatternName = function(pattern) {
-    return CONFIG.PATTERN_NAMES[pattern] || pattern;
-};
-
-// Generate unique board numbers based on game type and board ID
-window.generateBoardNumbers = function(gameType, boardId) {
-    const boardConfig = CONFIG.BOARD_TYPES.find(t => t.id === gameType);
-    if (!boardConfig) return [];
+    // UI Settings
+    THEME_COLORS: {
+        primary: '#0d47a1',
+        secondary: '#ffd700',
+        success: '#4CAF50',
+        danger: '#f44336',
+        warning: '#ff9800',
+        info: '#2196F3',
+        light: '#f5f5f5',
+        dark: '#212121'
+    },
     
-    const numbers = [];
+    // Sound settings
+    SOUNDS: {
+        numberCalled: 'sounds/number-called.mp3',
+        win: 'sounds/win.mp3',
+        background: 'sounds/background.mp3'
+    },
     
-    switch(gameType) {
-        case '75ball':
-        case '50ball':
-        case 'pattern':
-            // 5x5 board with columns
-            const columnRanges = boardConfig.columnRanges;
-            for (let col = 0; col < 5; col++) {
-                const [min, max] = columnRanges[col];
-                const colNumbers = [];
-                while (colNumbers.length < 5) {
-                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
-                    if (!colNumbers.includes(num)) {
-                        colNumbers.push(num);
-                    }
-                }
-                colNumbers.sort((a, b) => a - b);
-                numbers.push(...colNumbers);
-            }
-            break;
-            
-        case '90ball':
-            // 9x3 board with specific column ranges
-            const colRanges90 = [
-                [1, 9], [10, 19], [20, 29], [30, 39], [40, 49],
-                [50, 59], [60, 69], [70, 79], [80, 90]
-            ];
-            
-            // Create empty 3x9 board
-            const board90 = Array(3).fill().map(() => Array(9).fill(0));
-            
-            // Fill each column with 1, 2, or 3 numbers randomly
-            for (let col = 0; col < 9; col++) {
-                const [min, max] = colRanges90[col];
-                const numCount = Math.floor(Math.random() * 3) + 1; // 1-3 numbers per column
-                const colNumbers = [];
-                
-                while (colNumbers.length < numCount) {
-                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
-                    if (!colNumbers.includes(num)) {
-                        colNumbers.push(num);
-                    }
-                }
-                
-                colNumbers.sort((a, b) => a - b);
-                
-                // Place numbers in random rows
-                const rows = [0, 1, 2].sort(() => Math.random() - 0.5).slice(0, numCount);
-                for (let i = 0; i < numCount; i++) {
-                    board90[rows[i]][col] = colNumbers[i];
-                }
-            }
-            
-            // Flatten board
-            for (let row = 0; row < 3; row++) {
-                for (let col = 0; col < 9; col++) {
-                    numbers.push(board90[row][col]);
-                }
-            }
-            break;
-            
-        case '30ball':
-            // 3x3 board with numbers 1-30
-            const allNumbers30 = Array.from({length: 30}, (_, i) => i + 1);
-            const shuffled30 = [...allNumbers30].sort(() => Math.random() - 0.5);
-            numbers.push(...shuffled30.slice(0, 9));
-            break;
-            
-        case 'coverall':
-            // 9x5 board (45 numbers from 1-90)
-            const allNumbers90 = Array.from({length: 90}, (_, i) => i + 1);
-            const shuffled90 = [...allNumbers90].sort(() => Math.random() - 0.5);
-            numbers.push(...shuffled90.slice(0, 45));
-            break;
-    }
+    // Language settings (Amharic translations)
+    TRANSLATIONS: {
+        en: {
+            register: "Register",
+            gameType: "Game Type",
+            stake: "Stake",
+            boardId: "Board ID",
+            phoneNumber: "Phone Number",
+            fullName: "Full Name",
+            joinGame: "Join Game",
+            callingNumbers: "Calling Numbers",
+            currentNumber: "Current Number",
+            yourBoard: "Your Board",
+            winners: "Winners",
+            chat: "Chat",
+            adminLogin: "Admin Login",
+            startGame: "Start Game",
+            stopGame: "Stop Game",
+            callNumber: "Call Number",
+            resetGame: "Reset Game",
+            broadcast: "Broadcast",
+            playerList: "Player List"
+        },
+        am: {
+            register: "ተመዝገብ",
+            gameType: "የጨዋታ አይነት",
+            stake: "ዋጋ",
+            boardId: "የቦርድ ቁጥር",
+            phoneNumber: "ስልክ ቁጥር",
+            fullName: "ሙሉ ስም",
+            joinGame: "ጨዋታ ይቀላቀሉ",
+            callingNumbers: "ቁጥሮች ይጠራሉ",
+            currentNumber: "አሁን የተጠራው",
+            yourBoard: "የእርስዎ ቦርድ",
+            winners: "አሸናፊዎች",
+            chat: "ውይይት",
+            adminLogin: "አስተዳዳሪ ግባ",
+            startGame: "ጨዋታ ጀምር",
+            stopGame: "ጨዋታ አቁም",
+            callNumber: "ቁጥር ጥራ",
+            resetGame: "ጨዋታ ዳግም ጀምር",
+            broadcast: "ማስተዋወቅ",
+            playerList: "ተጫዋቾች ዝርዝር"
+        }
+    },
     
-    return numbers;
+    // Default language
+    DEFAULT_LANGUAGE: 'am'
 };
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CONFIG;
+}
+
+// Make available globally
+if (typeof window !== 'undefined') {
+    window.CONFIG = CONFIG;
+}
